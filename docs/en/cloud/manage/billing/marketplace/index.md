@@ -68,5 +68,9 @@ The usage and invoice dates will differ if these dates are not the same. Since u
 
 Please see the [Billing overview page](http://localhost:3000/docs/en/manage/billing).
 
+**Is there a difference in ClickHouse Cloud pricing whether paying through the cloud provider marketplace or directly to ClickHouse?**
+
+There is no difference in pricing between marketplace billing and signing up directly with ClickHouse. In either case your usage of ClickHouse Cloud is tracked in terms of ClickHouse Cloud Credits (CHCs), which are metered in the same way and billed accordingly.
+
 
 
