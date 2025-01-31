@@ -2,7 +2,7 @@
 slug: /en/partitions
 title: Table partitions
 description: What are table partitions in ClickHouse
-keywords: [partitions]
+keywords: [partitions, partition by]
 ---
 
 ## What are table partitions in ClickHouse?
@@ -12,6 +12,7 @@ keywords: [partitions]
 
 Partitions group the [data parts](/docs/en/parts) of a table in the [MergeTree engine family](/docs/en/engines/table-engines/mergetree-family) into organized, logical units, which is a way of organizing data that is conceptually meaningful and aligned with specific criteria, such as time ranges, categories, or other key attributes. These logical units make data easier to manage, query, and optimize.
 
+### Partition By
 
 Partitioning can be enabled when a table is initially defined via the [PARTITION BY clause](/docs/en/engines/table-engines/mergetree-family/custom-partitioning-key). This clause can contain a SQL expression on any columns, the results of which will define which partition a row belongs to.
 
@@ -32,6 +33,8 @@ PARTITION BY toStartOfMonth(date);
 ```
 
 You can [query this table](https://sql.clickhouse.com/?query=U0VMRUNUICogRlJPTSB1ay51a19wcmljZV9wYWlkX3NpbXBsZV9wYXJ0aXRpb25lZA&run_query=true&tab=results) in our ClickHouse SQL Playground.
+
+### Structure on disk
 
 Whenever a set of rows is inserted into the table, instead of creating (at [least](/docs/en/operations/settings/settings#max_insert_block_size)) one single data part containing all the inserted rows (as described [here](/docs/en/parts)), ClickHouse creates one new data part for each unique partition key value among the inserted rows:
 
@@ -253,7 +256,7 @@ GROUP BY table;
 As shown further above, the partitioned table `uk_price_paid_simple_partitioned` has 306 partitions, and therefore at least 306 active data parts. Whereas for our non-partitioned table `uk_price_paid_simple` all [initial](/docs/en/parts) data parts could be merged into a single active part by background merges.
 
 
-When we [check](https://sql.clickhouse.com/?query=RVhQTEFJTiBpbmRleGVzID0gMQpTRUxFQ1QgTUFYKHByaWNlKSBBUyBoaWdoZXN0X3ByaWNlCkZST00gdWsudWtfcHJpY2VfcGFpZF9zaW1wbGVfcGFydGl0aW9uZWQKV0hFUkUgdG93biA9ICdMT05ET04nOw&run_query=true&tab=results) the physical query execution plan with an [EXPLAIN](/docs/en/sql-reference/statements/explain) clause for our example query from above without the partition filter running over the partitioned table, we can see in row 19 and 20 of the output below that ClickHouse identified 671 out of 3257 exisiting [granules](/docs/en/optimize/sparse-primary-indexes#data-is-organized-into-granules-for-parallel-data-processing) (blocks of rows) spread over 431 out of 436 existing active data parts that potentially contain rows matching the query's filter, and therefore will be scanned and processed by the query engine: 
+When we [check](https://sql.clickhouse.com/?query=RVhQTEFJTiBpbmRleGVzID0gMQpTRUxFQ1QgTUFYKHByaWNlKSBBUyBoaWdoZXN0X3ByaWNlCkZST00gdWsudWtfcHJpY2VfcGFpZF9zaW1wbGVfcGFydGl0aW9uZWQKV0hFUkUgdG93biA9ICdMT05ET04nOw&run_query=true&tab=results) the physical query execution plan with an [EXPLAIN](/docs/en/sql-reference/statements/explain) clause for our example query from above without the partition filter running over the partitioned table, we can see in row 19 and 20 of the output below that ClickHouse identified 671 out of 3257 existing [granules](/docs/en/optimize/sparse-primary-indexes#data-is-organized-into-granules-for-parallel-data-processing) (blocks of rows) spread over 431 out of 436 existing active data parts that potentially contain rows matching the query's filter, and therefore will be scanned and processed by the query engine: 
 ```
 EXPLAIN indexes = 1
 SELECT MAX(price) AS highest_price

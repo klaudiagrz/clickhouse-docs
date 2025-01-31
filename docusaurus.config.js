@@ -174,8 +174,8 @@ const config = {
 		/** @type {import('@docusaurus/preset-classic').ThemeConfig} */
 		({
 			algolia: {
-				appId: '62VCH2MD74',
-				apiKey: '2363bec2ff1cf20b0fcac675040107c3',
+				appId: '5H9UG7CX5W',
+				apiKey: '4a7bf25cf3edbef29d78d5e1eecfdca5',
 				indexName: 'clickhouse',
 				contextualSearch: false,
 				searchPagePath: 'search',
@@ -328,6 +328,10 @@ const config = {
 			{
 				redirects: [
 					{
+						from: '/en/docs/en/cloud/manage/service-types',
+						to: '/en/cloud/manage/cloud-tiers'
+					},
+					{
 						from: '/docs/knowledgebase/why-clickhouse-is-so-fast',
 						to: '/en/concepts/why-clickhouse-is-so-fast'
 					},
@@ -438,28 +442,32 @@ const config = {
 					{ from: '/en/analyze', to: '/en/sql-reference' },
 					{ from: '/en/guides', to: '/en/guides/creating-tables' },
 					{
+						from: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
+					},
+					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-cardinality',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-design',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-intro',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-multiple',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-uuids',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/integrations/data-ingestion/dbms/',
@@ -470,7 +478,6 @@ const config = {
 						to: '/en/integrations',
 					},
 					{ from: '/en/integrations/intro', to: '/en/integrations' },
-					{ from: '/en/integrations/language-clients', to: '/en/integrations' },
 					{
 						from: '/en/integrations/migration/clickhouse-local',
 						to: '/en/cloud/migration/clickhouse-local',
@@ -2389,14 +2396,18 @@ const config = {
 						from: '/en/deletes',
 						to: '/en/deletes/overview'
 					},
+					{
+						from: '/en/optimize',
+						to: '/en/operations/overview'
+					}
 				],
 			},
 		],
 		chHeader
 	],
 	customFields: {
+		blogSidebarLink: '/docs/knowledgebase',
 		galaxyApiEndpoint: process.env.NEXT_PUBLIC_GALAXY_API_ENDPOINT || 'http://localhost:3000',
-
 		secondaryNavItems: [
 			{
 				type: 'docSidebar',
