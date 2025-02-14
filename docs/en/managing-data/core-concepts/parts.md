@@ -47,12 +47,16 @@ Depending on the table’s specific engine, additional transformations [may](/do
 
 Data parts are self-contained, including all metadata needed to interpret their contents without requiring a central catalog. Beyond the sparse primary index, parts contain additional metadata, such as secondary [data skipping indexes](/docs/en/optimize/skipping-indexes), [column statistics](https://clickhouse.com/blog/clickhouse-release-23-11#column-statistics-for-prewhere), checksums, min-max indexes (if [partitioning](/docs/en/partitions) is used), and [more](https://github.com/ClickHouse/ClickHouse/blob/a065b11d591f22b5dd50cb6224fab2ca557b4989/src/Storages/MergeTree/MergeTreeData.h#L104).
 
-To manage the number of parts per table, a background merge job periodically combines smaller parts into larger ones until they reach a [configurable](/docs/en/operations/settings/merge-tree-settings#max-bytes-to-merge-at-max-space-in-pool) compressed size (typically ~150 GB). Merged parts are marked as inactive and deleted after a [configurable](/docs/en/operations/settings/merge-tree-settings#old-parts-lifetime) time interval. Over time, this process creates a hierarchical structure of merged parts, which is why it’s called a MergeTree table:
+## Part merges
+
+To manage the number of parts per table, a [background merge](/docs/en/merges) job periodically combines smaller parts into larger ones until they reach a [configurable](/docs/en/operations/settings/merge-tree-settings#max-bytes-to-merge-at-max-space-in-pool) compressed size (typically ~150 GB). Merged parts are marked as inactive and deleted after a [configurable](/docs/en/operations/settings/merge-tree-settings#old-parts-lifetime) time interval. Over time, this process creates a hierarchical structure of merged parts, which is why it’s called a MergeTree table:
 
 <img src={require('./images/merges.png').default} alt='PART MERGES' class='image' style={{width: '100%'}} />
 <br/>
 
 To minimize the number of initial parts and the overhead of merges, database clients are [encouraged](https://clickhouse.com/blog/asynchronous-data-inserts-in-clickhouse#data-needs-to-be-batched-for-optimal-performance) to either insert tuples in bulk, e.g. 20,000 rows at once, or to use the [asynchronous insert mode](https://clickhouse.com/blog/asynchronous-data-inserts-in-clickhouse), in which ClickHouse buffers rows from multiple incoming INSERTs into the same table and creates a new part only after the buffer size exceeds a configurable threshold, or a timeout expires.
+
+## Monitoring table parts
 
 You can [query](https://sql.clickhouse.com/?query=U0VMRUNUIF9wYXJ0CkZST00gdWsudWtfcHJpY2VfcGFpZF9zaW1wbGUKR1JPVVAgQlkgX3BhcnQKT1JERVIgQlkgX3BhcnQgQVNDOw&run_query=true&tab=results) the list of all currently existing active parts of our example table by using the [virtual column](/docs/en/engines/table-engines#table_engines-virtual_columns) `_part`:
 
@@ -71,7 +75,7 @@ ORDER BY _part ASC;
 ```
 The query above retrieves the names of directories on disk, with each directory representing an active data part of the table. The components of these directory names have specific meanings, which are documented [here](https://github.com/ClickHouse/ClickHouse/blob/f90551824bb90ade2d8a1d8edd7b0a3c0a459617/src/Storages/MergeTree/MergeTreeData.h#L130) for those interested in exploring further.
 
-Alternatively, ClickHouse tracks infos for all parts of all tables in the [system.parts](https://clickhouse.com/docs/en/operations/system-tables/parts) system table, and the following query [returns](https://sql.clickhouse.com/?query=U0VMRUNUCiAgICBuYW1lLAogICAgbGV2ZWwsCiAgICByb3dzCkZST00gc3lzdGVtLnBhcnRzCldIRVJFIChkYXRhYmFzZSA9ICd1aycpIEFORCAoYHRhYmxlYCA9ICd1a19wcmljZV9wYWlkX3NpbXBsZScpIEFORCBhY3RpdmUKT1JERVIgQlkgbmFtZSBBU0M7&run_query=true&tab=results) for our example table above the list of all currently active parts, their merge level, and the number of rows stored in these parts:
+Alternatively, ClickHouse tracks info for all parts of all tables in the [system.parts](https://clickhouse.com/docs/en/operations/system-tables/parts) system table, and the following query [returns](https://sql.clickhouse.com/?query=U0VMRUNUCiAgICBuYW1lLAogICAgbGV2ZWwsCiAgICByb3dzCkZST00gc3lzdGVtLnBhcnRzCldIRVJFIChkYXRhYmFzZSA9ICd1aycpIEFORCAoYHRhYmxlYCA9ICd1a19wcmljZV9wYWlkX3NpbXBsZScpIEFORCBhY3RpdmUKT1JERVIgQlkgbmFtZSBBU0M7&run_query=true&tab=results) for our example table above the list of all currently active parts, their merge level, and the number of rows stored in these parts:
 ```
 SELECT
     name,

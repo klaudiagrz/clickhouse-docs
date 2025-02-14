@@ -6,6 +6,9 @@
 }
 
 .sidebarItemTitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   font-size: var(--ifm-h3-font-size);
   font-weight: var(--ifm-font-weight-bold);
 }
@@ -23,12 +26,22 @@
   display: block;
 }
 
+.sidebarItemNoResult{
+  color: var(--ifm-font-color-base);
+  display: block;
+  margin-top: 1rem;
+}
+
 .sidebarItemLink:hover {
   text-decoration: none;
 }
 
-.sidebarItemLinkActive {
-  color: var(--ifm-color-primary) !important;
+[data-theme='dark'] .sidebarItemLinkActive {
+  color: var(--click-color-primary-button-background);
+}
+
+[data-theme='light'] .sidebarItemLinkActive {
+  color: var(--click-color-link);
 }
 
 .sidebarSearchContainer {
@@ -40,4 +53,10 @@
   .sidebar {
     display: none;
   }
+}
+
+.KBTitle {
+  font-size: 14px;
+  margin-bottom: 13.5px;
+  margin-top: 24px;
 }

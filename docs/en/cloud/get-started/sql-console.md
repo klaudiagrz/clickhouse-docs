@@ -42,11 +42,15 @@ The Cell Inspector tool can be used to view large amounts of data contained with
 
 ### Sorting a table
 
-To sort a table in the SQL console, open a table and select the ‘Sort’ button in the toolbar. This button will open a menu that will allow you to configure your sort. You can choose a column by which to sort and configure the ordering of the sort (ascending or descending). Select ‘Apply’ or press Enter to sort your table
+To sort a table in the SQL console, open a table and select the ‘Sort’ button in the toolbar. This button will open a menu that will allow you to configure your sort. You can choose a column by which you want to sort and configure the ordering of the sort (ascending or descending). Select ‘Apply’ or press Enter to sort your table
 
 ![sort descending on a column](@site/docs/en/cloud/images/sqlconsole/sort-descending-on-column.png)
 
-The SQL console also allows you to add multiple sorts to a table. Click the ‘Sort’ button again to add another sort. Note: sorts are applied in the order that they appear in the sort pane (top to bottom). To remove a sort, simply click the ‘x’ button next to the sort.
+The SQL console also allows you to add multiple sorts to a table. Click the ‘Sort’ button again to add another sort. 
+
+:::note
+Sorts are applied in the order that they appear in the sort pane (top to bottom). To remove a sort, simply click the ‘x’ button next to the sort.
+:::
 
 ### Filtering a table
 
@@ -130,7 +134,7 @@ Saving queries allows you to easily find them later and share them with your tea
 To save a query, simply click the "Save" button immediately next to the "Run" button in the toolbar. Input the desired name and click "Save Query".
 
 :::note
-Using the shortcut cmd / ctrl + s will also save any work in the current query tab.
+Using the shortcut `cmd / ctrl` + s will also save any work in the current query tab.
 :::
 
 ![Save query](@site/docs/en/images/sql-console-save-query.png)
@@ -184,7 +188,7 @@ Values for any parameters that may exist in a query are automatically added to t
 
 After a query is executed, you can quickly search through the returned result set using the search input in the result pane. This feature assists in previewing the results of an additional `WHERE` clause or simply checking to ensure that specific data is included in the result set. After inputting a value into the search input, the result pane will update and return records containing an entry that matches the inputted value. In this example, we’ll look for all instances of `breakfast` in the `hackernews` table for comments that contain `ClickHouse` (case-insensitive):
 
-![Search Hackernews Data](@site/docs/en/cloud/images/sqlconsole/search-hn.png)
+![Search Hacker News Data](@site/docs/en/cloud/images/sqlconsole/search-hn.png)
 
 Note: Any field matching the inputted value will be returned. For example, the third record in the above screenshot does not match ‘breakfast’ in the `by` field, but the `text` field does:
 

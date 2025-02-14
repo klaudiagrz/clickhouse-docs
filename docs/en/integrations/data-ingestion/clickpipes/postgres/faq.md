@@ -7,9 +7,9 @@ sidebar_position: 2
 
 # ClickPipes for Postgres FAQ
 
-### How does idling affect my Postgres CDC Clickpipe?
+### How does idling affect my Postgres CDC ClickPipe?
 
-If your ClickHouse Cloud service is idling, your Postgres CDC clickpipe will continue to sync data, your service will wake-up at the next sync interval to handle the incoming data. Once the sync is finished and the idle period is reached, your service will go back to idling.
+If your ClickHouse Cloud service is idling, your Postgres CDC ClickPipe will continue to sync data, your service will wake-up at the next sync interval to handle the incoming data. Once the sync is finished and the idle period is reached, your service will go back to idling.
 
 As an example, if your sync interval is set to 30 mins and your service idle time is set to 10 mins, Your service will wake-up every 30 mins and be active for 10 mins, then go back to idling.
 
@@ -43,14 +43,14 @@ Yes! ClickPipes for Postgres offers two ways to connect to databases in private 
      - us-east-1
      - us-east-2 
      - eu-central-1
-   - For detailed setup instructions, see our [PrivateLink documentation](https://clickhouse.com/docs/knowledgebase/aws-privatelink-setup-for-clickpipes#requirements)
+   - For detailed setup instructions, see our [PrivateLink documentation](/docs/knowledgebase/aws-privatelink-setup-for-clickpipes#requirements)
    - For regions where PrivateLink is not available, please use SSH tunneling
 
 ### How do you handle UPDATEs and DELETEs?
 
-ClickPipes for Postgres captures both INSERTs and UPDATEs from Postgres as new rows with different versions (using the _peerdb_version column) in ClickHouse. The ReplacingMergeTree table engine periodically performs deduplication in the background based on the ordering key (ORDER BY columns), retaining only the row with the latest _peerdb_version.
+ClickPipes for Postgres captures both INSERTs and UPDATEs from Postgres as new rows with different versions (using the `_peerdb_` version column) in ClickHouse. The ReplacingMergeTree table engine periodically performs deduplication in the background based on the ordering key (ORDER BY columns), retaining only the row with the latest `_peerdb_` version.
 
-DELETEs from Postgres are propagated as new rows marked as deleted (using the _peerdb_is_deleted column). Since the deduplication process is asynchronous, you might temporarily see duplicates. To address this, you need to handle deduplication at the query layer.
+DELETEs from Postgres are propagated as new rows marked as deleted (using the `_peerdb_is_deleted` column). Since the deduplication process is asynchronous, you might temporarily see duplicates. To address this, you need to handle deduplication at the query layer.
 
 For more details, refer to:
 
@@ -67,7 +67,7 @@ During the preview, ClickPipes is free of cost. Post-GA, pricing is still to be 
 
 ### My replication slot size is growing or not decreasing; what might be the issue?
 
-If you're noticing that the size of your Postgres replication slot keeps increasing or isn’t coming back down, it usually means that **WAL (Write-Ahead Log) records aren’t being consumed (or “replayed”) quickly enough** by your CDC pipeline or replication process. Below are the most common causes and how you can address them.
+If you're noticing that the size of your Postgres replication slot keeps increasing or isn't coming back down, it usually means that **WAL (Write-Ahead Log) records aren't being consumed (or "replayed") quickly enough** by your CDC pipeline or replication process. Below are the most common causes and how you can address them.
 
 1. **Sudden Spikes in Database Activity**  
    - Large batch updates, bulk inserts, or significant schema changes can quickly generate a lot of WAL data.  
@@ -97,7 +97,7 @@ If you're noticing that the size of your Postgres replication slot keeps increas
 
 4. **VACUUM and VACUUM ANALYZE**  
    - Although necessary for database health, these operations can create extra WAL traffic—especially if they scan large tables.  
-   - Consider using autovacuum tuning parameters or scheduling manual VACUUMs during off-peak hours.
+   - Consider using autovacuum tuning parameters or scheduling manual VACUUM operations during off-peak hours.
 
 5. **Replication Consumer Not Actively Reading the Slot**  
    - If your CDC pipeline (e.g., ClickPipes) or another replication consumer stops, pauses, or crashes, WAL data will accumulate in the slot.  
@@ -136,14 +136,68 @@ As of now, you can create a ClickPipe only via the UI. However, we are actively 
 
 You cannot speed up an already running initial load. However, you can optimize future initial loads by adjusting certain settings. By default, the settings are configured with 4 parallel threads and a snapshot number of rows per partition set to 100,000. These are advanced settings and are generally sufficient for most use cases.
 
-For Postgres versions 13 or lower, ctid range scans are slower, and these settings become more critical. In such cases, consider the following process to improve performance:
+For Postgres versions 13 or lower, CTID range scans are slower, and these settings become more critical. In such cases, consider the following process to improve performance:
 
 1. **Drop the existing pipe**: This is necessary to apply new settings.
 2. **Delete destination tables on ClickHouse**: Ensure that the tables created by the previous pipe are removed.
 3. **Create a new pipe with optimized settings**: Typically, increase the snapshot number of rows per partition to between 1 million and 10 million, depending on your specific requirements and the load your Postgres instance can handle.
 
-These adjustments should significantly enhance the performance of the initial load, especially for older Postgres versions. If you are using Postgres 14 or later, these settings are less impactful due to improved support for ctid range scans.
+These adjustments should significantly enhance the performance of the initial load, especially for older Postgres versions. If you are using Postgres 14 or later, these settings are less impactful due to improved support for CTID range scans.
 
 ### How should I scope my publications when setting up replication?
 
-You can let Clickpipes manage your publications (requires write access) or create them yourself. With Clickpipes-managed publications, we automatically handle table additions and removals as you edit the pipe. If self-managing, carefully scope your publications to only include tables you need to replicate - including unnecessary tables will slow down Postgres WAL decoding. Importantly, exclude tables without primary keys if you're not replicating them to avoid potential replication slowness.
+You can let ClickPipes manage your publications (requires write access) or create them yourself. With ClickPipe-managed publications, we automatically handle table additions and removals as you edit the pipe. If self-managing, carefully scope your publications to only include tables you need to replicate - including unnecessary tables will slow down Postgres WAL decoding. Importantly, exclude tables without primary keys if you're not replicating them to avoid potential replication slowness.
+
+
+## Recommended `max_slot_wal_keep_size` Settings
+
+- **At Minimum:** Set [`max_slot_wal_keep_size`](https://www.postgresql.org/docs/devel/runtime-config-replication.html#GUC-MAX-SLOT-WAL-KEEP-SIZE) to retain at least **two days' worth** of WAL data.
+- **For Large Databases (High Transaction Volume):** Retain at least **2-3 times** the peak WAL generation per day.
+- **For Storage-Constrained Environments:** Tune this conservatively to **avoid disk exhaustion** while ensuring replication stability.
+
+### How to Calculate the Right Value
+
+To determine the right setting, measure the WAL generation rate:
+
+#### For PostgreSQL 10+:
+
+```sql
+SELECT pg_wal_lsn_diff(pg_current_wal_insert_lsn(), '0/0') / 1024 / 1024 AS wal_generated_mb;
+```
+
+#### For PostgreSQL 9.6 and below:
+
+```sql
+SELECT pg_xlog_location_diff(pg_current_xlog_insert_location(), '0/0') / 1024 / 1024 AS wal_generated_mb;
+```
+
+* Run the above query at different times of the day, especially during highly transactional periods.
+* Calculate how much WAL is generated per 24-hour period.
+* Multiply that number by 2 or 3 to provide sufficient retention.
+* Set `max_slot_wal_keep_size` to the resulting value in MB or GB.
+
+#### Example:
+
+If your database generates 100 GB of WAL per day, set:
+
+```sql
+max_slot_wal_keep_size = 200GB
+```
+
+### My replication slot is invalidated. What should I do?
+
+The only way to recover ClickPipe is by triggering a resync, which you can do in the Settings page.
+
+The most common cause of replication slot invalidation is a low `max_slot_wal_keep_size` setting on your PostgreSQL database (e.g., a few gigabytes). We recommend increasing this value. [Refer to this section](https://clickhouse.com/docs/en/integrations/clickpipes/postgres/faq#recommended-max_slot_wal_keep_size-settings) on tuning `max_slot_wal_keep_size`. Ideally, this should be set to at least 200GB to prevent replication slot invalidation.
+
+In rare cases, we have seen this issue occur even when `max_slot_wal_keep_size` is not configured. This could be due to an intricate and a rare bug in PostgreSQL, although the cause remains unclear.
+
+### I am seeing Out Of Memory (OOMs) on ClickHouse while my ClickPipe is ingesting data. Can you help?
+
+One common reason for OOMs on ClickHouse is that your service is undersized. This means that your current service configuration doesn't have enough resources (e.g., memory or CPU) to handle the ingestion load effectively. We strongly recommend scaling up the service to meet the demands of your ClickPipe data ingestion.
+
+Another reason we've observed is the presence of downstream Materialized Views with potentially unoptimized joins:
+
+- A common optimization technique for JOINs is if you have a `LEFT JOIN` where the right-hand side table is very large. In this case, rewrite the query to use a `RIGHT JOIN` and move the larger table to the left-hand side. This allows the query planner to be more memory efficient.
+
+- Another optimization for JOINs is to explicitly filter the tables through `subqueries` or `CTEs` and then perform the `JOIN` across these subqueries. This provides the planner with hints on how to efficiently filter rows and perform the `JOIN`.

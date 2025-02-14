@@ -174,8 +174,8 @@ const config = {
 		/** @type {import('@docusaurus/preset-classic').ThemeConfig} */
 		({
 			algolia: {
-				appId: '62VCH2MD74',
-				apiKey: '2363bec2ff1cf20b0fcac675040107c3',
+				appId: '5H9UG7CX5W',
+				apiKey: '4a7bf25cf3edbef29d78d5e1eecfdca5',
 				indexName: 'clickhouse',
 				contextualSearch: false,
 				searchPagePath: 'search',
@@ -198,65 +198,7 @@ const config = {
 					href: 'https://clickhouse.com/',
 				},
 				items: [
-					{
-						type: 'dropdown',
-						label: 'Product',
-						hoverable: 'true',
-						className: 'ch-menu',
-						position: 'left',
-						items: [
-							{
-								label: 'ClickHouse',
-								to: 'https://clickhouse.com/clickhouse',
-							},
-							{
-								label: 'ClickHouse Cloud',
-								to: 'https://clickhouse.com/cloud',
-							},
-						],
-					},
 
-					{
-						type: 'dropdown',
-						hoverable: 'true',
-						label: 'Resources',
-						className: 'ch-menu',
-						position: 'left',
-						items: [
-							{
-								to: '/docs/',
-								label: 'Docs',
-							},
-							{
-								label: 'ClickHouse Academy',
-								to: 'https://clickhouse.com/learn',
-							},
-							{
-								label: 'Upcoming training',
-								to: 'https://clickhouse.com/company/news-events',
-							},
-							{
-								label: 'Blog',
-								to: 'https://clickhouse.com/blog',
-							},
-							{
-								label: 'Support Program',
-								to: 'https://clickhouse.com/support/program',
-							},
-						],
-					},
-					{
-						position: 'left',
-						label: 'Use Cases',
-						className: 'ch-menu',
-						to: 'https://clickhouse.com/customer-stories',
-					},
-					{
-						position: 'left',
-						label: 'Pricing',
-						className: 'ch-menu',
-						to: 'https://clickhouse.com/pricing',
-					},
 				],
 			},
 			footer: {
@@ -318,7 +260,7 @@ const config = {
 				async postBuild({ siteConfig = {}, routesPaths = [], outDir }) {
 					// Print out to console all the rendered routes.
 					routesPaths.map((route) => {
-						console.log(route)
+						//console.log(route)
 					})
 				},
 			}
@@ -327,6 +269,10 @@ const config = {
 			'@docusaurus/plugin-client-redirects',
 			{
 				redirects: [
+					{
+						from: '/en/docs/en/cloud/manage/service-types',
+						to: '/en/cloud/manage/cloud-tiers'
+					},
 					{
 						from: '/docs/knowledgebase/why-clickhouse-is-so-fast',
 						to: '/en/concepts/why-clickhouse-is-so-fast'
@@ -438,28 +384,32 @@ const config = {
 					{ from: '/en/analyze', to: '/en/sql-reference' },
 					{ from: '/en/guides', to: '/en/guides/creating-tables' },
 					{
+						from: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
+					},
+					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-cardinality',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-design',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-intro',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-multiple',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/guides/improving-query-performance/sparse-primary-indexes/sparse-primary-indexes-uuids',
-						to: '/en/optimize/sparse-primary-indexes',
+						to: '/en/guides/best-practices/sparse-primary-indexes',
 					},
 					{
 						from: '/en/integrations/data-ingestion/dbms/',
@@ -470,7 +420,6 @@ const config = {
 						to: '/en/integrations',
 					},
 					{ from: '/en/integrations/intro', to: '/en/integrations' },
-					{ from: '/en/integrations/language-clients', to: '/en/integrations' },
 					{
 						from: '/en/integrations/migration/clickhouse-local',
 						to: '/en/cloud/migration/clickhouse-local',
@@ -2389,166 +2338,25 @@ const config = {
 						from: '/en/deletes',
 						to: '/en/deletes/overview'
 					},
+					{
+						from: '/en/optimize',
+						to: '/en/operations/overview'
+					},
+					{
+						from: '/en/observability',
+						to: '/en/use-cases/observability'
+					}
 				],
 			},
 		],
 		chHeader
 	],
 	customFields: {
+		blogSidebarLink: '/docs/knowledgebase',
 		galaxyApiEndpoint: process.env.NEXT_PUBLIC_GALAXY_API_ENDPOINT || 'http://localhost:3000',
-
 		secondaryNavItems: [
 			{
-				type: 'docSidebar',
-				label: 'Docs',
-				className: 'ch-menu',
-				position: 'left',
-				to: '/docs',
-				sidebarId: 'docs',
-			},
-			{
-				type: 'docSidebar',
-				label: 'Cloud',
-				sidebarId: 'cloud',
-				className: 'ch-menu',
-				position: 'left',
-				to: '/docs/en/cloud/index',
-			},
-			{
-				type: 'docSidebar',
-				label: 'SQL Reference',
-				sidebarId: 'sqlreference',
-				className: 'ch-menu',
-				position: 'left',
-				to: '/docs/en/sql-reference',
-			},
-			{
-				type: 'docSidebar',
-				label: 'chDB',
-				sidebarId: 'chdb',
-				className: 'ch-menu',
-				position: 'left',
-				to: '/docs/en/chdb',
-			},
-			{
-				type: 'docSidebar',
-				label: 'Data Types',
-				sidebarId: 'dataTypes',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/interfaces/cli",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Interfaces',
-				sidebarId: 'interfaces',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/interfaces/cli",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Development and Contributing',
-				sidebarId: 'developmentAndContributing',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/development/adding_test_queries",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Tools and Utilities',
-				sidebarId: 'toolsAndUtilities',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/operations/utilities/backupview",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Syntax',
-				sidebarId: 'syntax',
-				className: 'ch-menu',
-				position: 'left',
-				to: 'en/sql-reference/ansi',
-			},
-			{
-				type: 'docSidebar',
-				label: 'Table and Database Engines',
-				sidebarId: 'tableAndDatabaseEngines',
-				className: 'ch-menu',
-				position: 'left',
-				to: 'en/engines/database-engines/atomic',
-			},
-			{
-				type: 'docSidebar',
-				label: 'Datasets',
-				sidebarId: 'datasets',
-				className: 'ch-menu',
-				position: 'left',
-				to: 'en/getting-started/example-datasets',
-			},
-			{
-				type: 'docSidebar',
-				label: 'System Tables',
-				sidebarId: 'systemTables',
-				className: 'ch-menu',
-				position: 'left',
-				to: '/docs/en/operations/system-tables/asynchronous_insert_log',
-			},
-			{
-				type: 'docSidebar',
-				label: 'Performance and Optimization',
-				sidebarId: 'performanceAndOptimization',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/optimize/asynchronous-inserts",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Concepts',
-				sidebarId: 'concepts',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/operations/analyzer",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Getting Started',
-				sidebarId: 'gettingStarted',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/quick-start",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Security and Authentication',
-				sidebarId: 'securityAndAuth',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/operations/external-authenticators",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Statements',
-				sidebarId: 'statements',
-				className: 'ch-menu',
-				position: 'left',
-				to: "en/sql-reference/statements/alter/apply-deleted-mask",
-			},
-			{
-				type: 'docSidebar',
-				label: 'Settings',
-				sidebarId: 'settings',
-				className: 'ch-menu',
-				position: 'left',
-				to: '/docs/en/operations/settings/index',
-			},
-			{
-				label: 'Knowledge Base',
-				className: 'ch-menu',
-				position: 'left',
-				to: 'knowledgebase',
-			},
-			{
+
 				type: 'dropdown',
 				hoverable: 'false',
 				html:
@@ -2570,8 +2378,8 @@ const config = {
 						to: '/zh',
 					},
 				],
-			},
-		],
+			}
+		]
 	},
 }
 
